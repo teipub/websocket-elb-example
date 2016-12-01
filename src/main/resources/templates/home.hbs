@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Example in ELB</title>
+</head>
+<body>
+<input type="text" id="chat-input"/><button id="send-button">Send</button>
+<div id="chat-history"></div>
+<script src="//cdn.jsdelivr.net/sockjs/1/sockjs.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+    var sock = new SockJS('http://localhost:8080/websocket');
+    sock.onopen = function() {
+        console.log('open');
+    };
+    sock.onmessage = function(e) {
+        console.log('message', e.data);
+
+        $('#chat-history').before("<div>" + e.data + "</div>");
+    };
+    sock.onclose = function() {
+        console.log('close');
+    };
+
+    var $chat = $('#chat-input');
+    $chat.on("keydown", function(e) {
+        if(e.keyCode == 13) {
+            sendMessage();
+        }
+    });
+
+    $('#send-button').on("click", function() {
+        sendMessage();
+    });
+
+
+    function sendMessage() {
+        sock.send($chat.val());
+        $chat.val('');
+    }
+</script>
+</body>
+</html>
