@@ -1,5 +1,9 @@
 package io.teipub;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -12,9 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by tei on 2016-11-28.
  * teipub.io
  */
-public class WebSocketHandler extends TextWebSocketHandler {
+public class WebSocketHandler extends TextWebSocketHandler implements MessageListener {
 
     private static ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -32,12 +39,16 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
+        redisTemplate.convertAndSend("default", message.getPayload());
+    }
+
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
         try {
             for (WebSocketSession s : sessions.values()) {
-                s.sendMessage(message);
+                s.sendMessage(new TextMessage(message.getBody()));
             }
         } catch (IOException ignored) {
         }
     }
-
 }

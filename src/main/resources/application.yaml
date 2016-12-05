@@ -4,3 +4,8 @@ server:
       enabled: false
 handlebars:
   cache: false
+
+spring:
+  redis:
+    host: localhost
+    port: 6379

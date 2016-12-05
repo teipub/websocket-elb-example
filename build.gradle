@@ -59,8 +59,10 @@ dependencies {
     compile('pl.allegro.tech.boot:handlebars-spring-boot-starter:0.2.14')
     compile('org.springframework.boot:spring-boot-devtools')
     compile('com.github.jknack:handlebars-springmvc:4.0.6')
+    compile('com.github.kstyrc:embedded-redis:0.6')
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
 task wrapper(type: Wrapper) {
