@@ -2,23 +2,28 @@ package io.teipub;
 
 import com.github.jknack.handlebars.springmvc.HandlebarsViewResolver;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-@SpringBootApplication
-public class Application {
+@Configuration
+@ComponentScan
+@EnableAutoConfiguration
+public class Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
-    @Bean
-    public HandlebarsViewResolver handlebarsViewResolver() {
-        HandlebarsViewResolver viewResolver = new HandlebarsViewResolver();
-        viewResolver.setOrder(1);
-        viewResolver.setPrefix("/templates/");
-        viewResolver.setSuffix(".hbs");
-        return viewResolver;
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(applicationClass);
     }
+
+    private static Class<Application> applicationClass = Application.class;
 }

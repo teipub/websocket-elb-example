@@ -1,0 +1,6 @@
+server:
+  error:
+    whitelabel:
+      enabled: false
+handlebars:
+  cache: false
