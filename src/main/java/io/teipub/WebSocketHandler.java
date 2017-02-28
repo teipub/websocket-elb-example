@@ -21,7 +21,7 @@ public class WebSocketHandler extends TextWebSocketHandler implements MessageLis
     private static ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -44,9 +44,11 @@ public class WebSocketHandler extends TextWebSocketHandler implements MessageLis
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
+        byte[] body = message.getBody();
+
         try {
             for (WebSocketSession s : sessions.values()) {
-                s.sendMessage(new TextMessage(message.getBody()));
+                s.sendMessage(new TextMessage(body));
             }
         } catch (IOException ignored) {
         }

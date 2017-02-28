@@ -12,6 +12,11 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import redis.clients.jedis.JedisShardInfo;
+import redis.embedded.RedisServer;
+
+import javax.annotation.PreDestroy;
+import java.io.IOException;
 
 /**
  * Created by tei on 2016-11-28.
@@ -21,11 +26,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    @Value("${spring.redis.host}")
-    private String redisHost;
-
-    @Value("${spring.redis.port}")
-    private int redisPort;
+    private RedisServer redisServer;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -40,15 +41,25 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public RedisTemplate redisTemplate() {
+        try {
+            redisServer = new RedisServer(6379);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        redisServer.start();
+
+        JedisShardInfo shardInfo = new JedisShardInfo("localhost", 6379);
         JedisConnectionFactory factory = new JedisConnectionFactory();
-        factory.setHostName(redisHost);
-        factory.setPort(redisPort);
-        factory.setDatabase(0);
-        factory.setUsePool(true);
+        factory.setShardInfo(shardInfo);
 
         RedisTemplate redisTemplate = new RedisTemplate();
         redisTemplate.setConnectionFactory(factory);
         return redisTemplate;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        redisServer.stop();
     }
 
     @Bean
